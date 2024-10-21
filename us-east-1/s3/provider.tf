@@ -7,9 +7,9 @@ terraform {
   }
   backend "s3" {
     bucket  = "lilfrou-terraform-state"
-    key     = "terraform/us-east-1/vpc.tfstate" # path to the state file in the bucket
-    region  = "us-east-1"                       # AWS region of the bucket
-    encrypt = false                             # encrypt the state file
+    key     = "terraform/us-east-1/s3.tfstate" # path to the state file in the bucket
+    region  = "us-east-1"                      # AWS region of the bucket
+    encrypt = false                            # encrypt the state file
   }
 }
 
@@ -22,3 +22,5 @@ provider "aws" {
     }
   }
 }
+
+data "aws_caller_identity" "current" {}
