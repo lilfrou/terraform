@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  formatter:
+    name: Formatter
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set current terraform version
+        run: echo "TERRAFORM_VERSION=$(cat .terraform-version)" >> $GITHUB_ENV
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Run Formatter
+        run: make fmt-check
+  tflint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      name: Checkout source code
+
+    - name: tflint
+      uses: reviewdog/action-tflint@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        reporter: github-pr-review
+        fail_on_error: "true"
+        tflint_version: "v0.44.0"
+        tflint_init: "true"
+        # The --recursive flag is an experimental feature. It may not suit all workflows.
+        # https://github.com/terraform-linters/tflint/releases/tag/v0.44.0
+        # So it can't read rules from config file, we specify it manually.
+        flags: "-c .tflint.hcl --recursive --enable-rule=terraform_naming_convention"
