@@ -16,6 +16,18 @@ resource "aws_s3_bucket_versioning" "terraform_state" {
   }
 }
 
+# Set the server-side encryption configuration for the S3 bucket
+resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = data.terraform_remote_state.kms.outputs.kms_arn # Use the KMS Key ID
+    }
+    bucket_key_enabled = true
+  }
+}
+
 # S3 Bucket Policy
 resource "aws_s3_bucket_policy" "terraform_state_policy" {
   bucket = aws_s3_bucket.terraform_state.id
